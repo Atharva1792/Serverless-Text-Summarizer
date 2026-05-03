@@ -12,7 +12,7 @@ The system demonstrates an end-to-end AI workflow on AWS, covering frontend deli
 User → CloudFront → S3 (React App) → API Gateway → Lambda → Bedrock → DynamoDB
 
 ### Architecture Diagram
-![Architecture](./images/architecture.png)
+![Architecture](./images/Architecture.png)
 
 ---
 
