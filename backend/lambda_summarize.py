@@ -5,7 +5,6 @@ import botocore
 from datetime import datetime, timezone, timedelta
 import uuid
 
-# Clients — reused across warm Lambda invocations
 bedrock_client = boto3.client(
     'bedrock-runtime',
     region_name=os.environ.get("AWS_DEFAULT_REGION",None)
@@ -58,10 +57,8 @@ def lambda_handler(event, context):
         if length not in SUMMARY_INSTRUCTIONS:
             length = "medium"
 
-        # ── Build prompt exactly as in the notebook ──────────────────────────
         prompt_data = f"{SUMMARY_INSTRUCTIONS[length]}\n\n{input_text}"
 
-        # ── Request body matching notebook's Nova Lite schema ─────────────────
         request_body = json.dumps({
             "messages": [
                 {
@@ -76,7 +73,6 @@ def lambda_handler(event, context):
             }
         })
 
-        # ── Invoke model (matches notebook's invoke_model call) ───────────────
         response = bedrock_client.invoke_model(
             body=request_body,
             modelId=MODEL_ID,
@@ -86,7 +82,6 @@ def lambda_handler(event, context):
 
         response_body = json.loads(response.get("body").read())
 
-        # ── Extract text (matches notebook's response parsing) ─────────────────
         summary_text = (
             response_body
             .get("output", {})
@@ -95,7 +90,7 @@ def lambda_handler(event, context):
             .get("text", "")
         )
 
-        # ── Persist to DynamoDB ───────────────────────────────────────────────
+        # ── Persist to DynamoDB ──
         item_id = str(uuid.uuid4())
         IST = timezone(timedelta(hours=5, minutes=30))
         timestamp = datetime.now(IST).isoformat()

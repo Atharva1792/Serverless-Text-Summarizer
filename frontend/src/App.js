@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-// ── Paste your API Gateway base URL below ─────────────────────────────────
-const API_BASE = "https://12v0z0wmp7.execute-api.ap-south-1.amazonaws.com/dev";
+const API_BASE = process.env.REACT_APP_API_BASE;;
 
 const SUMMARY_LENGTHS = {
   short:    { label: "Short",    desc: "2–3 sentences" },
@@ -70,7 +69,7 @@ export default function App() {
     setWordCount(inputText.trim().split(/\s+/).filter(Boolean).length);
   }, [inputText]);
 
-  // Load history from DynamoDB on mount
+  // Load history from DynamoDB
   useEffect(() => {
     fetchHistory();
   }, []);
@@ -80,7 +79,6 @@ export default function App() {
     try {
       const res   = await fetch(`${API_BASE}/history`);
       const outer = await res.json();
-      // Lambda proxy integration wraps the real payload as a JSON-stringified `body`
       const inner = typeof outer.body === "string" ? JSON.parse(outer.body) : outer;
       if (inner.history) setHistory(inner.history);
     } catch (e) {
@@ -105,7 +103,6 @@ export default function App() {
     setLastResult(null);
 
     try {
-      // Lambda proxy integration expects: { body: "<stringified inner payload>" }
       const res = await fetch(`${API_BASE}/summarize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,7 +112,6 @@ export default function App() {
       });
 
       const outer = await res.json();
-      // Unwrap the stringified body from Lambda proxy response
       const data  = typeof outer.body === "string" ? JSON.parse(outer.body) : outer;
 
       const statusCode = outer.statusCode ?? res.status;
@@ -131,7 +127,6 @@ export default function App() {
       setSummary(data.summary);
       setLastResult(data);
 
-      // Optimistically prepend to local history (Lambda already wrote to DynamoDB)
       setHistory(prev => [{
         id:           data.id,
         timestamp:    data.timestamp,

@@ -30,7 +30,7 @@ def lambda_handler(event, context):
         return {"statusCode": 200, "headers": CORS_HEADERS, "body": ""}
 
     try:
-        # Single-user setup: scan all items, sort newest first, cap at 20
+        
         response = table.scan(
             ProjectionExpression="id, #ts, inputSnippet, inputLength, summary, #len",
             ExpressionAttributeNames={
