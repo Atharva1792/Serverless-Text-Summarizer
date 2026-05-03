@@ -82,8 +82,3 @@ User → CloudFront → S3 (React App) → API Gateway → Lambda → Bedrock �
 - Configuring IAM roles for Bedrock model invocation  
 - Designing clean API responses for frontend compatibility  
 
----
-
-## 👤 Author
-
-Built by Atharva
